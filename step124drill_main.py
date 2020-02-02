@@ -2,7 +2,7 @@
 #
 # Author:           Samantha Epling
 #
-# Date:             January 31, 2020
+# Date:             February 1, 2020
 #
 #                   Total Drill Annihilation
 #
@@ -18,9 +18,19 @@ import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 import sqlite3
+import shutil
 from shutil import *
 from shutil import move
 
+def databasecreation():
+    conn = sqlite3.connect('txtfile.db')
+    with conn:
+        cur = conn.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS tbl_files(\
+            ID INTEGER PRIMARY KEY AUTOINCREMENT, col_ftypes TEXT, \
+            col_ftimestamp INTEGER)")
+        conn.commit()
+    conn.close()
 
 class ParentWindow(Frame):
     def __init__(self, master, *args, **kwargs):
@@ -68,15 +78,6 @@ class ParentWindow(Frame):
         self.varDirectName2.set(self.varsavedDirectName2)
         print(self.varDirectName2.get())
         
-    conn = sqlite3.connect('txtfile.db')
-    with conn:
-        cur = conn.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS tbl_files(\
-            ID INTEGER PRIMARY KEY AUTOINCREMENT, col_ftypes TEXT, \
-            col_ftimestamp INTEGER)")
-        conn.commit()
-    conn.close()
-
     def ChooseFile(self):
         fPath = self.varsavedDirectName1
         for file_name in os.listdir(fPath):
@@ -87,23 +88,19 @@ class ParentWindow(Frame):
                 varTSTXTfile = os.path.getmtime(abPath)
                 print(varTXTPath)
                 print(varTSTXTfile)
-                self.CloneFile()
-                print('this is my CloneFile function running')
+                conn = sqlite3.connect('txtfile.db')
+                with conn:
+                    cur = conn.cursor()
+                    cur.execute("INSERT INTO tbl_files(col_ftypes, col_ftimestamp) VALUES (?,?)",\
+                        (varTXTPath, varTSTXTfile))
+                    conn.commit()
+                conn.close()       
 
-    def CloneFile(self):
-        varTXTPath = StringVar()
-        varTXTPath.shutil.move(self.varsavedDirectName1, self.varsavedDirectName2)
-        print('this is my CloneFile function running')
-                    
-    conn = sqlite3.connect('txtfile.db')
-    with conn:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO tbl_files(col_ftypes, col_ftimestamp) VALUES (?,?)",\
-                    (varTXTPath, varTSTXTfile))
-        conn.commit()
-    conn.close()       
-
+                shutil.move(abPath, self.varsavedDirectName2)
+                print('this is my CloneFile function running within the function')
+                  
 if __name__== "__main__":
+    databasecreation()
     root = tk.Tk()
     App = ParentWindow(root)
     root.mainloop()
