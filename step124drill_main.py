@@ -2,7 +2,7 @@
 #
 # Author:           Samantha Epling
 #
-# Date:             January 27, 2020
+# Date:             January 31, 2020
 #
 #                   Total Drill Annihilation
 #
@@ -14,12 +14,12 @@
 #                   Windows 10
 
 import os
-
 import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 import sqlite3
 from shutil import *
+from shutil import move
 
 
 class ParentWindow(Frame):
@@ -62,14 +62,11 @@ class ParentWindow(Frame):
         self.varsavedDirectName1 = filedialog.askdirectory()
         self.varDirectName1.set(self.varsavedDirectName1)
         print(self.varDirectName1.get())
-        return self.varDirectName1
 
     def OpenDir2(self):
         self.varsavedDirectName2 = filedialog.askdirectory()
         self.varDirectName2.set(self.varsavedDirectName2)
         print(self.varDirectName2.get())
-        return self.varDirectName2
-
         
     conn = sqlite3.connect('txtfile.db')
     with conn:
@@ -79,7 +76,6 @@ class ParentWindow(Frame):
             col_ftimestamp INTEGER)")
         conn.commit()
     conn.close()
-
 
     def ChooseFile(self):
         fPath = self.varsavedDirectName1
@@ -91,24 +87,21 @@ class ParentWindow(Frame):
                 varTSTXTfile = os.path.getmtime(abPath)
                 print(varTXTPath)
                 print(varTSTXTfile)
-                return varTXTPath
-                return varTSTXTfile
+                self.CloneFile()
+                print('this is my CloneFile function running')
 
     def CloneFile(self):
-        varTXTPath = varNewPath
-        varNewPath.shutil.move(self.varsavedDirectName1, self.varsavedDirectName2)
+        varTXTPath = StringVar()
+        varTXTPath.shutil.move(self.varsavedDirectName1, self.varsavedDirectName2)
+        print('this is my CloneFile function running')
                     
     conn = sqlite3.connect('txtfile.db')
     with conn:
         cur = conn.cursor()
-        cur.execute
-
-        col_ftypes = txtfile
-        col_ftimestamp = varTSTXTfile
-
+        cur.execute("INSERT INTO tbl_files(col_ftypes, col_ftimestamp) VALUES (?,?)",\
+                    (varTXTPath, varTSTXTfile))
         conn.commit()
-    conn.close()
-        
+    conn.close()       
 
 if __name__== "__main__":
     root = tk.Tk()
